@@ -15,11 +15,27 @@
         android:text="Bienvenido"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btnPreferencias"
+        app:layout_constraintBottom_toTopOf="@+id/txtDescripcionServicio"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
+
+    <!-- Texto explicativo del servicio de monitor de luz -->
+    <TextView
+        android:id="@+id/txtDescripcionServicio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:gravity="center"
+        android:text="Servicio de monitoreo y registro en tiempo real de niveles de luminosidad ambiental mediante sensor LDR."
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnPreferencias"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtBienvenida" />
 
     <!-- Botón para navegar a la pantalla de Preferencias -->
     <Button
@@ -32,7 +48,7 @@
         app:layout_constraintBottom_toTopOf="@+id/btnVerLecturas"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtBienvenida" />
+        app:layout_constraintTop_toBottomOf="@+id/txtDescripcionServicio" />
 
     <!-- Botón para navegar a la pantalla de Lecturas -->
     <Button

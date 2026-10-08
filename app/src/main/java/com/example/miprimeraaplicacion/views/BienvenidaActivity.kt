@@ -43,12 +43,13 @@ class BienvenidaActivity : AppCompatActivity() {
             insets
         }
 
-        // Lee el dato tipo String que fue enviado desde MainActivity con la clave "usuario"
-        nombreUsuario = intent.getStringExtra("usuario")
+        // Lee el email del usuario enviado a través del Intent (clave "email" o "usuario")
+        val email = intent.getStringExtra("email") ?: intent.getStringExtra("usuario") ?: ""
+        nombreUsuario = email
         // Busca y obtiene la referencia del TextView txtBienvenida definido en el XML
         val txtBienvenida = findViewById<TextView>(R.id.txtBienvenida)
-        // Modifica el texto en pantalla concatenando el saludo con el valor recibido
-        txtBienvenida.text = "Bienvenido, $nombreUsuario"
+        // Modifica el texto en pantalla saludando con el email obtenido
+        txtBienvenida.text = if (email.isNotEmpty()) "Bienvenido, $email" else "Bienvenido"
     }
 
     // Método público ejecutado automáticamente al hacer clic en el botón btnPreferencias (vía android:onClick)

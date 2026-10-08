@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.miprimeraaplicacion.R
 import com.example.miprimeraaplicacion.adapters.LecturaAdapter
-import com.example.miprimeraaplicacion.models.Lectura
+import com.example.miprimeraaplicacion.models.RegistroLuz
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -38,17 +38,17 @@ class ListaActivity : AppCompatActivity() {
 
         // Inicializa el adaptador pasándole las dos funciones: qué hacer al editar y qué hacer al eliminar
         adapter = LecturaAdapter(
-            onEditarClick = { lecturaAEditar ->
+            onEditarClick = { registroAEditar ->
                 // Cuando tocan la fila, abrimos el formulario en "Modo Editar" pasándole los datos
                 val intent = Intent(this, FormularioLecturaActivity::class.java)
-                intent.putExtra("lecturaId", lecturaAEditar.id)
-                intent.putExtra("lecturaDescripcion", lecturaAEditar.descripcion)
-                intent.putExtra("lecturaValor", lecturaAEditar.valor)
+                intent.putExtra("lecturaId", registroAEditar.id)
+                intent.putExtra("ubicacion", registroAEditar.ubicacion)
+                intent.putExtra("nivelLuminosidad", registroAEditar.nivelLuminosidad)
                 startActivity(intent)
             },
-            onEliminarClick = { lecturaAEliminar ->
+            onEliminarClick = { registroAEliminar ->
                 // Cuando tocan el basurero, mostramos el diálogo
-                mostrarDialogoConfirmacion(lecturaAEliminar)
+                mostrarDialogoConfirmacion(registroAEliminar)
             }
         )
         
@@ -73,10 +73,10 @@ class ListaActivity : AppCompatActivity() {
         }
     }
 
-    // Método personalizado para conectarse a Firestore y escuchar la colección de lecturas
+    // Método personalizado para conectarse a Firestore y escuchar la colección de registros
     private fun escucharLectura() {
-        // Accede a la colección llamada "lecturas" en Firestore y añade un listener (escuchador) de eventos en tiempo real
-        db.collection("lecturas").addSnapshotListener { snapshot, error ->
+        // Accede a la colección llamada "registros_luminosidad" en Firestore y añade un listener (escuchador) de eventos en tiempo real
+        db.collection("registros_luminosidad").addSnapshotListener { snapshot, error ->
             // Si ocurre un error al intentar leer los datos de Firebase, entra en esta condición
             if (error != null) {
                 // Imprime un mensaje de advertencia (Warning) en la consola de depuración (Logcat) con el detalle del error
@@ -85,30 +85,29 @@ class ListaActivity : AppCompatActivity() {
                 return@addSnapshotListener
             }
 
-            // Si el snapshot (la instantánea o "foto" de los datos) no es nulo, significa que recibimos información exitosamente
+            // Si el snapshot no es nulo, significa que recibimos información exitosamente
             if (snapshot != null) {
-                // Convierte automáticamente todos los documentos de Firestore en una lista de objetos de nuestra clase 'Lectura'
-                val listaLecturas = snapshot.toObjects(Lectura::class.java)
+                // Convierte automáticamente todos los documentos de Firestore en una lista de objetos de 'RegistroLuz'
+                val listaRegistros = snapshot.toObjects(RegistroLuz::class.java)
                 
-                // Imprime en la consola (Debug) la cantidad total de lecturas que se recuperaron
-                Log.d("ListaActivity", "Lecturas recuperadas: ${listaLecturas.size}")
+                // Imprime en la consola (Debug) la cantidad total de registros que se recuperaron
+                Log.d("ListaActivity", "Registros recuperados: ${listaRegistros.size}")
                 
                 // Llama al método 'actualizarLista' de nuestro adaptador pasándole la nueva lista de datos 
-                // Esto hará que la lista en pantalla se refresque automáticamente con la información más reciente
-                adapter.actualizarLista(listaLecturas)
+                adapter.actualizarLista(listaRegistros)
             }
         }
     }
 
     // Muestra una ventana emergente preguntando al usuario si realmente desea eliminar
-    private fun mostrarDialogoConfirmacion(lectura: Lectura) {
+    private fun mostrarDialogoConfirmacion(registro: RegistroLuz) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Eliminar Lectura")
-        builder.setMessage("¿Estás seguro de que deseas eliminar la lectura '${lectura.descripcion}'?")
+        builder.setTitle("Eliminar Registro")
+        builder.setMessage("¿Estás seguro de que deseas eliminar el registro de '${registro.ubicacion}'?")
         
         // Si el usuario presiona "Sí, eliminar"
         builder.setPositiveButton("Sí, eliminar") { dialog, _ ->
-            eliminarRegistro(lectura)
+            eliminarRegistro(registro)
             dialog.dismiss() // Cierra el diálogo
         }
         
@@ -122,16 +121,16 @@ class ListaActivity : AppCompatActivity() {
     }
 
     // Lógica para conectarse a Firestore y borrar el documento
-    private fun eliminarRegistro(lectura: Lectura) {
+    private fun eliminarRegistro(registro: RegistroLuz) {
         // En Firestore, los documentos se borran buscando su ID específico en la colección
-        db.collection("lecturas").document(lectura.id)
+        db.collection("registros_luminosidad").document(registro.id)
             .delete()
             .addOnSuccessListener {
+                android.widget.Toast.makeText(this, "Registro eliminado correctamente", android.widget.Toast.LENGTH_SHORT).show()
                 Log.d("ListaActivity", "Documento eliminado con éxito!")
-                // No necesitamos actualizar la lista a mano aquí, 
-                // porque nuestro 'SnapshotListener' detectará el cambio y se actualizará solo.
             }
             .addOnFailureListener { e ->
+                android.widget.Toast.makeText(this, "Error al eliminar: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
                 Log.w("ListaActivity", "Error al eliminar documento", e)
             }
     }
